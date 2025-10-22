@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Tag-based Resource Scheduler using Lambda'
+
+Resources:
+  SchedulerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: lambda-func-apse1-aws-reporter-resource-cross-account
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Role: arn:aws:iam::562298770313:role/iam-role-aws-reporter-cross-account
+      Timeout: 900
+      MemorySize: 256
+      Code:
+        ZipFile: |
+          # Lambda code will be deployed separately
+          def lambda_handler(event, context):
+              return {'statusCode': 200}
+
+  SchedulerInvokeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: InvokeLambdaPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !GetAtt SchedulerFunction.Arn
+
+Outputs:
+  SchedulerFunctionArn:
+    Description: Scheduler Lambda Function ARN
+    Value: !GetAtt SchedulerFunction.Arn
