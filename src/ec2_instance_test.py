@@ -10,10 +10,19 @@ logger.info(f"Loaded account configuration: {load_config}")
 
 aws_instance = AwsInstance()
 
-instances = aws_instance.get_instances()
-for reservation in instances['Reservations']:
-    for instance in reservation['Instances']:
-        print(f"ID: {instance['InstanceId']}, State: {instance['State']['Name']}, Type: {instance['InstanceType']}")
+# aws_instance.stop_instance("i-09f6dd4e8ded41cb2")
+# aws_instance.start_instance("i-09f6dd4e8ded41cb2")
 
-with open("instances_output.json", "w") as outfile:
-    json.dump(instances, outfile, default=str, indent=4)
+tagging = {
+    "Name": "dinhnh1",
+    "Environment": "LAB",
+}
+aws_instance.tag_resource("i-09f6dd4e8ded41cb2", tagging)
+
+# instances = aws_instance.get_instances()
+# for reservation in instances['Reservations']:
+#     for instance in reservation['Instances']:
+#         print(f"ID: {instance['InstanceId']}, State: {instance['State']['Name']}, Type: {instance['InstanceType']}")
+
+# with open("instances_output.json", "w") as outfile:
+#     json.dump(instances, outfile, default=str, indent=4)
