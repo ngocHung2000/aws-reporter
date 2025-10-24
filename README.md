@@ -1,40 +1,53 @@
 # AWS Reporter for Cross Account
 
-A Python-based tool for reporting AWS resources across multiple accounts using cross-account role assumption.
+A FastAPI-based REST API for managing and reporting AWS resources across multiple accounts using cross-account role assumption.
 
 ## Features
 
-- Cross-account AWS resource reporting
-- EC2 instance discovery and reporting
-- Configurable account management
-- JSON output support
-- Comprehensive logging
+- **FastAPI REST API** with automatic OpenAPI documentation
+- **Cross-account AWS resource management** using STS role assumption
+- **EC2 instance operations**: List, start, stop, and tag instances
+- **RDS instance operations**: List, start, stop DB instances
+- **Configurable account management** via JSON configuration
+- **Comprehensive logging** with structured log files
+- **CORS support** for web integration
+- **Modular service architecture** with base classes
 
 ## Project Structure
 
 ```
 aws-reporter/
 ├── src/
-│   ├── models/
-│   │   ├── aws_instance.py    # EC2 instance operations
-│   │   ├── aws_sts.py         # STS role assumption
-│   │   └── config.py          # Configuration management
+│   ├── routers/
+│   │   ├── ec2.py             # EC2 API endpoints
+│   │   ├── rds.py             # RDS API endpoints
+│   │   └── base.py            # Base router utilities
+│   ├── services/
+│   │   ├── aws_ec2_service.py # EC2 service layer
+│   │   ├── aws_rds_service.py # RDS service layer
+│   │   ├── aws_aurora_service.py # Aurora service layer
+│   │   ├── aws_sts_service.py # STS role assumption
+│   │   └── aws_base_service.py # Base service class
 │   ├── utils/
-│   │   └── logging.py         # Logging utilities
-│   ├── lambda_function.py     # Main Lambda function
-│   └── ec2_instance_test.py   # Test script
+│   │   ├── logging.py         # Logging utilities
+│   │   └── config.py          # Configuration management
+│   ├── main.py                # FastAPI application entry point
+│   ├── lambda_function.py     # Lambda function (legacy)
+│   └── *_test.py              # Test scripts
 ├── config/
 │   └── accounts.json          # Account configuration
 ├── infrastructure/
 │   └── main-aws-reporter.yaml # CloudFormation template
-└── scripts/                   # Deployment scripts
+├── scripts/                   # Deployment scripts
+├── logs/                      # Application logs
+└── requirements.txt           # Python dependencies
 ```
 
 ## Prerequisites
 
 - Python 3.8+
-- AWS CLI configured
-- Appropriate IAM permissions for cross-account access
+- AWS CLI configured with appropriate credentials
+- IAM permissions for cross-account access (if using cross-account features)
 
 ## Installation
 
@@ -46,7 +59,7 @@ cd aws-reporter
 
 2. Install dependencies:
 ```bash
-pip install boto3
+pip install -r requirements.txt
 ```
 
 3. Configure AWS credentials:
@@ -58,7 +71,7 @@ aws configure
 
 ### Account Configuration
 
-Edit `config/accounts.json` to add your AWS accounts:
+Edit `config/accounts.json` to add your AWS accounts for cross-account access:
 
 ```json
 {
@@ -68,12 +81,18 @@ Edit `config/accounts.json` to add your AWS accounts:
             "account_id": "123456789012",
             "role_arn": "arn:aws:iam::123456789012:role/AWSReporterRole",
             "region": "ap-southeast-1"
+        },
+        {
+            "account_name": "staging",
+            "account_id": "123456789013",
+            "role_arn": "arn:aws:iam::123456789013:role/AWSReporterRole",
+            "region": "us-east-1"
         }
     ]
 }
 ```
 
-### IAM Role Setup
+### IAM Role Setup (for Cross-Account Access)
 
 Create an IAM role in each target account with the following trust policy:
 
@@ -92,7 +111,7 @@ Create an IAM role in each target account with the following trust policy:
 }
 ```
 
-Attach the following policy for EC2 read access:
+Attach policies for required AWS services:
 
 ```json
 {
@@ -102,7 +121,12 @@ Attach the following policy for EC2 read access:
             "Effect": "Allow",
             "Action": [
                 "ec2:DescribeInstances",
-                "ec2:DescribeRegions"
+                "ec2:StartInstances",
+                "ec2:StopInstances",
+                "ec2:CreateTags",
+                "rds:DescribeDBInstances",
+                "rds:StartDBInstance",
+                "rds:StopDBInstance"
             ],
             "Resource": "*"
         }
@@ -112,82 +136,133 @@ Attach the following policy for EC2 read access:
 
 ## Usage
 
-### Basic EC2 Instance Reporting
+### Running the FastAPI Server
 
+Start the API server:
+```bash
+cd src
+python3 main.py
+```
+
+The API will be available at:
+- **API Base**: http://localhost:8000
+- **Interactive Docs**: http://localhost:8000/docs
+- **OpenAPI Spec**: http://localhost:8000/openapi.json
+
+### API Endpoints
+
+#### General Endpoints
+- `GET /` - API information and version
+- `GET /health` - Health check endpoint
+
+#### EC2 Endpoints
+- `GET /api/v1/ec2/list` - List all EC2 instances
+- `GET /api/v1/ec2/{instance_id}` - Get specific EC2 instance details
+- `POST /api/v1/ec2/{instance_id}/start` - Start an EC2 instance
+- `POST /api/v1/ec2/{instance_id}/stop` - Stop an EC2 instance
+
+#### RDS Endpoints
+- `GET /api/v1/rds` - List all RDS instances
+- `GET /api/v1/rds/{instance_id}` - Get specific RDS instance details
+
+### Testing Individual Services
+
+Run EC2 service test:
 ```bash
 cd src
 python3 ec2_instance_test.py
 ```
 
-This will:
-- Load account configuration
-- Connect to AWS using default credentials
-- Retrieve EC2 instances
-- Output results to `instances_output.json`
-
-### Lambda Function
-
-Deploy and run the Lambda function:
-
+Run RDS service test:
 ```bash
-python3 src/lambda_function.py
+cd src
+python3 rds_test.py
+```
+
+Run Aurora service test:
+```bash
+cd src
+python3 aurora_test.py
 ```
 
 ### Programmatic Usage
 
+#### Using EC2 Service
 ```python
-from models.aws_instance import AwsInstance
-from models.config import Config
+from services.aws_ec2_service import AWSEC2Service
 
-# Load configuration
-config = Config.load_config("config/accounts.json")
+# Initialize EC2 service
+ec2_service = AWSEC2Service()
 
-# Initialize AWS instance client
-aws_instance = AwsInstance()
+# Get all EC2 instances
+instances = ec2_service.get_resources()
 
-# Get instances
-instances = aws_instance.get_instances()
+# Start an instance
+ec2_service.start_instance("i-1234567890abcdef0")
 
-# Process results
-for reservation in instances['Reservations']:
-    for instance in reservation['Instances']:
-        print(f"Instance ID: {instance['InstanceId']}")
-        print(f"State: {instance['State']['Name']}")
-        print(f"Type: {instance['InstanceType']}")
+# Stop an instance
+ec2_service.stop_instance("i-1234567890abcdef0")
+
+# Tag a resource
+ec2_service.tag_resource("i-1234567890abcdef0", {"Environment": "Production"})
 ```
 
-## API Reference
+#### Using RDS Service
+```python
+from services.aws_rds_service import AWSRDSService
 
-### AwsInstance Class
+# Initialize RDS service
+rds_service = AWSRDSService()
 
-#### `__init__(session=None)`
-Initialize the AwsInstance client.
-- `session`: Optional boto3 session. If None, uses default credentials.
+# Get all RDS instances
+db_instances = rds_service.get_resources()
 
-#### `get_instances()`
-Retrieve all EC2 instances in the configured region.
-- Returns: EC2 describe_instances response
+# Start a DB instance
+rds_service.start_db_instance("my-database")
 
-### Config Class
+# Stop a DB instance
+rds_service.stop_db_instance("my-database")
+```
 
-#### `load_config(file_path)`
-Load account configuration from JSON file.
-- `file_path`: Path to configuration file
-- Returns: Configuration dictionary
+#### Using Cross-Account Access
+```python
+from services.aws_sts_service import AWSSTSService
+from services.aws_ec2_service import AWSEC2Service
 
-### AwsSts Class
+# Assume role in another account
+session = AWSSTSService.assume_role(
+    role_arn="arn:aws:iam::123456789012:role/AWSReporterRole",
+    region="ap-southeast-1"
+)
 
-#### `assume_role(role_arn, region)`
-Assume an IAM role for cross-account access.
-- `role_arn`: ARN of the role to assume
-- `region`: AWS region
-- Returns: boto3 session with assumed role credentials
+# Use the assumed role session
+ec2_service = AWSEC2Service(session=session)
+instances = ec2_service.get_resources()
+```
+
+## Architecture
+
+### Service Layer Architecture
+
+The application follows a modular service-oriented architecture:
+
+- **AWSBaseService**: Abstract base class providing common functionality
+- **AWSEC2Service**: Handles EC2 operations (list, start, stop, tag)
+- **AWSRDSService**: Handles RDS operations (list, start, stop)
+- **AWSSTSService**: Handles cross-account role assumption
+- **Config**: Manages configuration loading from JSON files
+
+### Router Layer
+
+FastAPI routers organize endpoints by AWS service:
+- **EC2 Router**: `/api/v1/ec2/*` endpoints
+- **RDS Router**: `/api/v1/rds/*` endpoints
 
 ## Output Format
 
-The tool outputs EC2 instance data in JSON format with datetime objects converted to ISO format strings.
+API responses return AWS service data in JSON format with proper error handling.
 
-Example output structure:
+Example EC2 response:
 ```json
 {
     "Reservations": [
@@ -199,7 +274,7 @@ Example output structure:
                     "State": {
                         "Name": "running"
                     },
-                    "LaunchTime": "2023-10-22T10:30:00"
+                    "LaunchTime": "2023-10-22T10:30:00+00:00"
                 }
             ]
         }
@@ -209,31 +284,57 @@ Example output structure:
 
 ## Logging
 
-Logs are written to the `logs/` directory with timestamps. Log level can be configured in `utils/logging.py`.
+- Logs are written to the `logs/` directory with timestamps
+- Log files follow the pattern: `app_YYYYMMDD_HHMMSS.log`
+- Structured logging includes service operations and error details
+- Log level can be configured in `utils/logging.py`
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **"Unable to locate credentials"**
-   - Ensure AWS credentials are configured
-   - Check AWS_PROFILE environment variable
+   - Ensure AWS credentials are configured: `aws configure`
+   - Check `AWS_PROFILE` environment variable
 
 2. **"Access Denied" when assuming role**
-   - Verify IAM role trust policy
-   - Check role permissions
+   - Verify IAM role trust policy includes your source account
+   - Check role permissions for required AWS services
 
-3. **"TypeError: Object of type datetime is not JSON serializable"**
-   - Use the datetime handler in JSON serialization
-   - Already handled in `ec2_instance_test.py`
+3. **"Module not found" errors**
+   - Ensure you're running from the `src/` directory
+   - Install all dependencies: `pip install -r requirements.txt`
 
-## Contributing
+4. **FastAPI server won't start**
+   - Check if port 8000 is available
+   - Verify all router modules have the `router` attribute defined
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+## Development
+
+### Adding New Services
+
+1. Create a new service class inheriting from `AWSBaseService`
+2. Implement the `get_resources()` method
+3. Add service-specific methods
+4. Create corresponding router endpoints
+5. Update `main.py` to include the new router
+
+### Running Tests
+
+Execute individual test files:
+```bash
+cd src
+python3 ec2_instance_test.py
+python3 rds_test.py
+python3 aurora_test.py
+```
+
+## Dependencies
+
+- `boto3>=1.26.0` - AWS SDK for Python
+- `fastapi>=0.104.0` - Modern web framework
+- `uvicorn>=0.24.0` - ASGI server
+- `python-dateutil>=2.8.0` - Date utilities
 
 ## License
 
