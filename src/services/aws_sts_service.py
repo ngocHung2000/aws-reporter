@@ -3,7 +3,7 @@ from utils.logging import setup_logging
 
 logger = setup_logging()
 
-class AwsSts:
+class AWSSTSService:
     @staticmethod
     def assume_role(role_arn: str,region: str):
         """Assume role cross-account and return session credentials"""

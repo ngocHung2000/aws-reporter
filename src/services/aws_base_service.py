@@ -4,14 +4,12 @@ from utils.logging import setup_logging
 
 logger = setup_logging()
 
-class AwsBaseResource(ABC):
+class AWSBaseService(ABC):
     def __init__(self, session=None):
         if session is None:
             session = boto3.Session()
             logger.info(f"Initialized default session in account {session.client('sts').get_caller_identity().get('Account')} at region: {session.region_name}.")
         self.session = session
-        logger.info("AwsBaseResource initialized.")
-
     @abstractmethod
     def get_resources(self):
         # Get all resources - placeholder method

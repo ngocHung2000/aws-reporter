@@ -3,12 +3,14 @@
         {
             "account_name": "aws-uat",
             "account_id": "123456789012",
-            "role_arn": "arn:aws:iam::123456789012:role/AWSReporterRole"
+            "role_arn": "arn:aws:iam::123456789012:role/AWSReporterRole",
+            "region": "ap-southeast-1"
         },
         {
             "account_name": "aws-dev",
             "account_id": "123456789212",
-            "role_arn": "arn:aws:iam::123456789212:role/AWSReporterRole"
+            "role_arn": "arn:aws:iam::123456789212:role/AWSReporterRole",
+            "region": "ap-southeast-1"
         }
     ]
 }

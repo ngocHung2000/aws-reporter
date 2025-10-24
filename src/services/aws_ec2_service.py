@@ -1,14 +1,11 @@
-import boto3
-from .config import Config
 from utils.logging import setup_logging
-from .aws_base_resource import AwsBaseResource
+from .aws_base_service import AWSBaseService
 
 logger = setup_logging()
 
-class AwsInstance(AwsBaseResource):
+class AWSEC2Service(AWSBaseService):
     def __init__(self, session=None):
         super().__init__(session)
-        logger.info("AwsInstance initialized.")
 
     def get_resources(self):
         """Retrieve EC2 instances based on configuration"""

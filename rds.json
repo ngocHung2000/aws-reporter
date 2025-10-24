@@ -1,0 +1,168 @@
+{
+    "DBInstances": [
+        {
+            "DBInstanceIdentifier": "rds-oracle-apse1-az1-prod-rlos-db-0001",
+            "DBInstanceClass": "db.r5.xlarge",
+            "Engine": "oracle-ee",
+            "DBInstanceStatus": "available",
+            "MasterUsername": "admin",
+            "DBName": "RLOS",
+            "Endpoint": {
+                "Address": "rds-oracle-apse1-az1-prod-rlos-db-0001.cjapdcxcmaua.ap-southeast-1.rds.amazonaws.com",
+                "Port": 1521,
+                "HostedZoneId": "Z2G0U3KFCY8NZ5"
+            },
+            "AllocatedStorage": 484,
+            "InstanceCreateTime": "2024-04-12 09:03:32.511000+00:00",
+            "PreferredBackupWindow": "15:21-15:51",
+            "BackupRetentionPeriod": 7,
+            "DBSecurityGroups": [],
+            "VpcSecurityGroups": [
+                {
+                    "VpcSecurityGroupId": "sg-09f5024578d7572b6",
+                    "Status": "active"
+                }
+            ],
+            "DBParameterGroups": [
+                {
+                    "DBParameterGroupName": "oracle-ee-19-v1",
+                    "ParameterApplyStatus": "in-sync"
+                }
+            ],
+            "AvailabilityZone": "ap-southeast-1b",
+            "DBSubnetGroup": {
+                "DBSubnetGroupName": "subnet-group-rds-oracle-apse1-az1-prod-rlos-db",
+                "DBSubnetGroupDescription": "subnet-group-rds-oracle-apse1-az1-prod-rlos-db",
+                "VpcId": "vpc-0680bf4cfb98495a0",
+                "SubnetGroupStatus": "Complete",
+                "Subnets": [
+                    {
+                        "SubnetIdentifier": "subnet-0563e20e569b0f688",
+                        "SubnetAvailabilityZone": {
+                            "Name": "ap-southeast-1a"
+                        },
+                        "SubnetOutpost": {},
+                        "SubnetStatus": "Active"
+                    },
+                    {
+                        "SubnetIdentifier": "subnet-0a264ec757981d3bd",
+                        "SubnetAvailabilityZone": {
+                            "Name": "ap-southeast-1b"
+                        },
+                        "SubnetOutpost": {},
+                        "SubnetStatus": "Active"
+                    }
+                ]
+            },
+            "PreferredMaintenanceWindow": "tue:20:42-tue:21:12",
+            "PendingModifiedValues": {},
+            "LatestRestorableTime": "2025-10-24 02:49:23+00:00",
+            "MultiAZ": true,
+            "EngineVersion": "19.0.0.0.ru-2024-01.rur-2024-01.r1",
+            "AutoMinorVersionUpgrade": false,
+            "ReadReplicaDBInstanceIdentifiers": [],
+            "LicenseModel": "bring-your-own-license",
+            "Iops": 12000,
+            "OptionGroupMemberships": [
+                {
+                    "OptionGroupName": "rlos-oracle-ee-19-v1",
+                    "Status": "in-sync"
+                }
+            ],
+            "CharacterSetName": "UTF8",
+            "NcharCharacterSetName": "AL16UTF16",
+            "SecondaryAvailabilityZone": "ap-southeast-1a",
+            "PubliclyAccessible": false,
+            "StorageType": "gp3",
+            "DbInstancePort": 0,
+            "StorageEncrypted": true,
+            "KmsKeyId": "arn:aws:kms:ap-southeast-1:634848313033:key/030bd5ad-a921-404e-aa63-c22c4522d489",
+            "DbiResourceId": "db-GPQBLPEXBUUHSAS5EYNTC747VY",
+            "CACertificateIdentifier": "rds-ca-rsa2048-g1",
+            "DomainMemberships": [],
+            "CopyTagsToSnapshot": true,
+            "MonitoringInterval": 60,
+            "EnhancedMonitoringResourceArn": "arn:aws:logs:ap-southeast-1:634848313033:log-group:RDSOSMetrics:log-stream:db-GPQBLPEXBUUHSAS5EYNTC747VY",
+            "MonitoringRoleArn": "arn:aws:iam::634848313033:role/rds-monitoring-role",
+            "DBInstanceArn": "arn:aws:rds:ap-southeast-1:634848313033:db:rds-oracle-apse1-az1-prod-rlos-db-0001",
+            "IAMDatabaseAuthenticationEnabled": false,
+            "PerformanceInsightsEnabled": true,
+            "PerformanceInsightsKMSKeyId": "arn:aws:kms:ap-southeast-1:634848313033:key/030bd5ad-a921-404e-aa63-c22c4522d489",
+            "PerformanceInsightsRetentionPeriod": 7,
+            "DeletionProtection": true,
+            "AssociatedRoles": [
+                {
+                    "RoleArn": "arn:aws:iam::634848313033:role/iam-role-rds-prod-access-s3-los-khcn",
+                    "FeatureName": "S3_INTEGRATION",
+                    "Status": "ACTIVE"
+                }
+            ],
+            "MaxAllocatedStorage": 1000,
+            "TagList": [
+                {
+                    "Key": "map-migrated",
+                    "Value": "comm4BISQ7O0D5"
+                },
+                {
+                    "Key": "Project",
+                    "Value": "LOSKhachHangCaNhan"
+                },
+                {
+                    "Key": "CreatedBy",
+                    "Value": "Manually"
+                },
+                {
+                    "Key": "BillingRoute",
+                    "Value": "G1"
+                },
+                {
+                    "Key": "BusinessUnit",
+                    "Value": "NHS-ITD"
+                },
+                {
+                    "Key": "DataClassification",
+                    "Value": "HighlyConfidential"
+                },
+                {
+                    "Key": "Environment",
+                    "Value": "PRD"
+                },
+                {
+                    "Key": "SystemOwner",
+                    "Value": "tamds2@hdbank.com.vn"
+                },
+                {
+                    "Key": "BusinessOwner",
+                    "Value": "linhtk@hdbank.com.vn"
+                },
+                {
+                    "Key": "ServiceOwner",
+                    "Value": "tholtd2@hdbank.com.vn"
+                }
+            ],
+            "CustomerOwnedIpEnabled": false,
+            "ActivityStreamStatus": "stopped",
+            "BackupTarget": "region",
+            "NetworkType": "IPV4",
+            "StorageThroughput": 500,
+            "CertificateDetails": {
+                "CAIdentifier": "rds-ca-rsa2048-g1",
+                "ValidTill": "2026-04-22 20:42:08+00:00"
+            },
+            "DedicatedLogVolume": false,
+            "IsStorageConfigUpgradeAvailable": false
+        }
+    ],
+    "ResponseMetadata": {
+        "RequestId": "a8b5f883-8c29-40c3-aa4f-29e22e449e47",
+        "HTTPStatusCode": 200,
+        "HTTPHeaders": {
+            "x-amzn-requestid": "a8b5f883-8c29-40c3-aa4f-29e22e449e47",
+            "strict-transport-security": "max-age=31536000",
+            "content-type": "text/xml",
+            "content-length": "7301",
+            "date": "Fri, 24 Oct 2025 02:57:54 GMT"
+        },
+        "RetryAttempts": 0
+    }
+}
